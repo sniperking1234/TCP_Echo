@@ -20,14 +20,14 @@ var (
 		Short: "echo ist a tcp reply server",
 		Run: func(cmd *cobra.Command, args []string) {
 			// Do Stuff Here
-			log.Printf("starting listening %s", port)
+			log.Printf("starting listening %v", port)
 			echo()
 		},
 	}
 )
 
 func init() {
-	rootCmd.PersistentFlags().StringVar(&prefix, "prxfix", "", "return string prefix")
+	rootCmd.PersistentFlags().StringVar(&prefix, "prefix", "", "return string prefix")
 	rootCmd.Flags().IntVar(&port, "port", 0, "listening port")
 	rootCmd.MarkFlagRequired("port")
 }
@@ -41,9 +41,9 @@ func main() {
 }
 
 func echo() {
-	listener, err := net.Listen("tcp", string(port))
+	listener, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%v", port))
 	if err != nil {
-		log.Fatal("Error listening", err.Error())
+		log.Fatal("Error listening ", err.Error())
 	}
 	for {
 		conn, err := listener.Accept()
@@ -66,9 +66,9 @@ func handleConnection(conn net.Conn) {
 			}
 			return
 		}
-		log.Println("requests is", bytes)
+		log.Printf("requests is %s", bytes)
 
-		line := fmt.Sprintf("%s%s", prefix, reader)
+		line := fmt.Sprintf("%s %s", prefix, bytes)
 		log.Println("response is", line)
 		conn.Write([]byte(line))
 	}
